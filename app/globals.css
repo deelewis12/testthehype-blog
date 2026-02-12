@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Blog post content styling */
+.prose {
+  @apply text-gray-900 leading-relaxed;
+}
+
+.prose p {
+  @apply my-6;
+}
+
+.prose h2 {
+  @apply text-2xl font-bold mt-12 mb-4 text-gray-900;
+}
+
+.prose ul {
+  @apply my-6 ml-6 list-disc space-y-2;
+}
+
+.prose li {
+  @apply text-gray-900;
+}
