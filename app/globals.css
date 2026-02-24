@@ -1,47 +1,399 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #050008;
+  --fg: #c9a227;
+  --fg-dim: #7a6018;
+  --fg-bright: #9b4dca;
+  --border: #1a0a2e;
+  --code-bg: #0d0018;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--fg);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-/* Blog post content styling */
+/* ── TV fills the entire viewport ────────────── */
+
+.tv-room {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  /* Deep espresso wood — dark chocolate, not orange */
+  background-color: #251008;
+  background-image:
+    repeating-linear-gradient(
+      88deg,
+      transparent 0px, transparent 5px,
+      rgba(0,0,0,0.1) 5px, rgba(0,0,0,0.1) 6px
+    ),
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px, transparent 14px,
+      rgba(255,255,255,0.012) 14px, rgba(255,255,255,0.012) 15px
+    ),
+    linear-gradient(160deg, #3a1e0c 0%, #251008 45%, #1c0c06 70%, #311808 100%);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.tv-set {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ── TV Body — transparent, just holds layout ── */
+
+.tv-body {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+  gap: 16px;
+  background: transparent;
+}
+
+/* ── Dark Wooden Bezel (no chrome) ───────────── */
+
+.tv-chrome-bezel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #1e1008 0%, #120a04 50%, #1a0d06 100%);
+  box-shadow:
+    inset 0 6px 20px rgba(0,0,0,0.8),
+    inset 0 -4px 12px rgba(0,0,0,0.5);
+}
+
+/* ── CRT Screen — heavily rounded oval corners ── */
+
+.tv-screen {
+  position: relative;
+  background: var(--bg);
+  width: 100%;
+  flex: 1;
+  /* Pronounced oval-rectangle corners like a real CRT */
+  border-radius: 6vw / 8vh;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 120px rgba(0,0,0,0.9),
+    inset 0 0 40px rgba(0,0,0,0.6),
+    inset 0 0 0 2px rgba(0,0,0,0.8),
+    0 0 40px rgba(0,0,0,0.5);
+}
+
+.tv-screen-content {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  z-index: 1;
+}
+.tv-screen-content::-webkit-scrollbar { display: none; }
+
+/* ── CRT power animations ─────────────────────── */
+
+@keyframes crt-off {
+  0%   { transform: scaleY(1)    scaleX(1);   filter: brightness(1) saturate(1); opacity: 1; }
+  35%  { transform: scaleY(0.03) scaleX(1);   filter: brightness(5) saturate(0); opacity: 1; }
+  65%  { transform: scaleY(0.03) scaleX(0.5); filter: brightness(3) saturate(0); opacity: 1; }
+  100% { transform: scaleY(0.03) scaleX(0);   filter: brightness(0);             opacity: 0; }
+}
+
+@keyframes crt-on {
+  0%   { transform: scaleY(0)    scaleX(0);   filter: brightness(8) saturate(0); opacity: 0; }
+  15%  { transform: scaleY(0.03) scaleX(0.9); filter: brightness(5) saturate(0); opacity: 1; }
+  55%  { transform: scaleY(1.04) scaleX(1);   filter: brightness(1.5) saturate(0.6); opacity: 1; }
+  100% { transform: scaleY(1)    scaleX(1);   filter: brightness(1) saturate(1);    opacity: 1; }
+}
+
+[data-power="turning-off"] .tv-screen-content {
+  animation: crt-off 0.42s ease-in forwards;
+  transform-origin: center center;
+}
+
+[data-power="off"] .tv-screen-content {
+  opacity: 0;
+  transform: scaleY(0) scaleX(0);
+}
+
+[data-power="turning-on"] .tv-screen-content {
+  animation: crt-on 0.64s ease-out forwards;
+  transform-origin: center center;
+}
+
+/* Scanlines */
+.tv-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 2px,
+    rgba(0,0,0,0.14) 2px, rgba(0,0,0,0.14) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Vignette */
+.tv-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 48%, transparent 50%, rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── Right Controls Panel — wood toned ────────── */
+
+.tv-controls-panel {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background-color: #1e0d04;
+  background-image:
+    repeating-linear-gradient(
+      88deg,
+      transparent 0px, transparent 5px,
+      rgba(0,0,0,0.12) 5px, rgba(0,0,0,0.12) 6px
+    ),
+    linear-gradient(175deg, #341a08 0%, #1e0d04 50%, #160904 100%);
+  border-radius: 6px;
+  padding: 14px 20px 14px;
+  box-shadow: inset -3px 0 10px rgba(0,0,0,0.5);
+  overflow: hidden;
+}
+
+/* Power button — silver rectangular pressed-in button */
+.tv-power-btn {
+  width: 52px;
+  height: 19px;
+  border-radius: 4px;
+  align-self: flex-end;
+  margin-right: 6px;
+  border: 1px solid #383838;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  /* ON state — recessed into panel: dark at top (panel shadow), lighter at bottom */
+  background: linear-gradient(to bottom,
+    #909090 0%,
+    #b8b8b8 40%,
+    #d0d0d0 100%
+  );
+  border-color: #222;
+  border-top-color: #111;
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+/* OFF state — popped out: bright highlight at top, shadow below */
+[data-power="off"] .tv-power-btn,
+[data-power="turning-off"] .tv-power-btn {
+  background: linear-gradient(to bottom,
+    #e8e8e8 0%,
+    #d0d0d0 30%,
+    #b8b8b8 60%,
+    #888 100%
+  );
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,0.5),
+    inset 0 -2px 4px rgba(0,0,0,0.3),
+    0 4px 7px rgba(0,0,0,0.7),
+    0 2px 3px rgba(0,0,0,0.5);
+  transform: translateY(-1px);
+}
+
+/* Dials */
+.tv-dial-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tv-dial-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tv-dial-label {
+  font-size: 0.48rem;
+  letter-spacing: 0.2em;
+  color: #5a3a18;
+  text-transform: uppercase;
+}
+
+/* Indicator dots (3 small round lights below dials) */
+.tv-indicator-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.tv-indicator-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #1a1008;
+  border: 1px solid #0a0604;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.tv-indicator-dot.power {
+  background: #cc2200;
+  box-shadow: 0 0 6px rgba(204,34,0,1), 0 0 12px rgba(204,34,0,0.5);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Red dot off when TV is off */
+[data-power="off"] .tv-indicator-dot.power,
+[data-power="turning-off"] .tv-indicator-dot.power {
+  background: #1a1008;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Red dot fades back on when turning on */
+[data-power="turning-on"] .tv-indicator-dot.power {
+  background: #881500;
+  box-shadow: 0 0 3px rgba(204,34,0,0.5);
+}
+
+/* Speaker grille — repeating horizontal slat pattern fills full height */
+.tv-speaker-grille {
+  flex: 1;
+  width: 100%;
+  padding: 6px 4px;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #0a0602 0px,
+      #0a0602 3px,
+      #2a1608 3px,
+      #2a1608 4px,
+      #1a0d05 4px,
+      #1a0d05 8px
+    );
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.6), inset 0 -1px 3px rgba(0,0,0,0.3);
+}
+
+
+/* ── Prose (post content) ─────────────────────── */
+
 .prose {
-  @apply text-gray-900 leading-relaxed;
+  color: var(--fg);
+  line-height: 1.9;
 }
 
-.prose p {
-  @apply my-6;
+.prose p { margin: 1.5rem 0; }
+
+.prose h1 {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin: 3rem 0 1rem;
+  color: var(--fg-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .prose h2 {
-  @apply text-2xl font-bold mt-12 mb-4 text-gray-900;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 2.5rem 0 1rem;
+  color: var(--fg-bright);
+}
+
+.prose h3 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 2rem 0 0.75rem;
+  color: var(--fg-bright);
 }
 
 .prose ul {
-  @apply my-6 ml-6 list-disc space-y-2;
+  margin: 1.5rem 0;
+  padding-left: 0;
+  list-style: none;
 }
 
-.prose li {
-  @apply text-gray-900;
+.prose ul li::before {
+  content: '- ';
+  color: var(--fg-dim);
+}
+
+.prose ol {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+  list-style: decimal;
+}
+
+.prose li { margin: 0.4rem 0; }
+
+.prose blockquote {
+  border-left: 2px solid var(--fg-dim);
+  padding-left: 1rem;
+  color: var(--fg-dim);
+  margin: 1.5rem 0;
+}
+
+.prose a {
+  color: var(--fg-bright);
+  text-decoration: underline;
+}
+
+.prose a:hover { color: #fff; }
+
+.prose code {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 0.1em 0.35em;
+  font-family: inherit;
+  font-size: 0.9em;
+  color: var(--fg-bright);
+}
+
+.prose pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.prose img {
+  max-width: 100%;
+  margin: 2rem 0;
+  border: 1px solid var(--border);
+}
+
+.prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 2rem 0;
+  border: 1px solid var(--border);
 }

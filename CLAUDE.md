@@ -3,4 +3,5 @@
 ## Language & Terminology
 
 - Use **"sign in"** and **"sign out"** — never "log in", "login", or "logout"
+- Use **"story"** (singular) and **"stories"** (plural) in all UI text — never "post" or "posts"
 - Be consistent with all UI terminology throughout the app — once a word is chosen for a concept, use it everywhere (buttons, headings, labels, error messages, etc.)
