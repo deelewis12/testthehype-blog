@@ -162,8 +162,8 @@ function TickDial({
       className="tv-tick-dial-svg"
       onClick={handleClick}
       onContextMenu={handleContextMenu}
-      title="Left-click: volume up · Right-click: volume down"
     >
+      <title>Left-click: volume up · Right-click: volume down</title>
       <defs>
         <linearGradient id="recessShadow2" x1="15%" y1="15%" x2="85%" y2="85%">
           <stop offset="0%"   stopColor="rgba(0,0,0,0.85)" />
