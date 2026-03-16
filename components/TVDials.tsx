@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 type Channel = { href: string };
@@ -9,10 +10,12 @@ const TICK_COUNT = 16;
 function NumberDial({
   rotation,
   onClick,
+  onContextMenu,
   channelIndex,
 }: {
   rotation: number;
   onClick: () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
   channelIndex: number;
 }) {
   const size = 224;
@@ -28,7 +31,8 @@ function NumberDial({
   return (
     <button
       onClick={onClick}
-      title={`Channel ${channelIndex + 1} — click to advance`}
+      onContextMenu={onContextMenu}
+      title="Left-click: next channel · Right-click: previous channel"
       style={{
         background: "none",
         border: "none",
@@ -122,7 +126,13 @@ function NumberDial({
   );
 }
 
-function TickDial() {
+function TickDial({
+  volume,
+  onVolumeChange,
+}: {
+  volume: number;
+  onVolumeChange: (v: number) => void;
+}) {
   const size = 224;
   const cx = 112;
   const cy = 112;
@@ -132,12 +142,27 @@ function TickDial() {
   const barW = 12;
   const barH = (silverR - 6) * 2;
 
+  // 0deg at vol 0 (12 o'clock), +30deg per step clockwise
+  const rotation = volume * 30;
+
+  function handleClick() {
+    onVolumeChange(Math.min(12, volume + 1));
+  }
+
+  function handleContextMenu(e: React.MouseEvent) {
+    e.preventDefault();
+    onVolumeChange(Math.max(0, volume - 1));
+  }
+
   return (
     <svg
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
-      style={{ display: "block", filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.9))" }}
+      className="tv-tick-dial-svg"
+      onClick={handleClick}
+      onContextMenu={handleContextMenu}
+      title="Left-click: volume up · Right-click: volume down"
     >
       <defs>
         <linearGradient id="recessShadow2" x1="15%" y1="15%" x2="85%" y2="85%">
@@ -193,8 +218,8 @@ function TickDial() {
       {/* Inner silver face */}
       <circle cx={cx} cy={cy} r={silverR} fill="url(#silverGrad2)" />
 
-      {/* Raised indicator bar — fixed */}
-      <g style={{ transform: "rotate(-20deg)", transformOrigin: `${cx}px ${cy}px` }}>
+      {/* Raised indicator bar — rotates with volume */}
+      <g style={{ transform: `rotate(${rotation}deg)`, transformOrigin: `${cx}px ${cy}px`, transition: "transform 0.2s ease-out" }}>
         <rect
           x={cx - barW / 2}
           y={cy - barH / 2}
@@ -211,27 +236,38 @@ function TickDial() {
 export default function TVDials({ channels }: { channels: Channel[] }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [volume, setVolume] = useState(0);
 
   const currentIndex = channels.findIndex((c) => c.href === pathname);
   const activeIndex = currentIndex === -1 ? 0 : currentIndex;
 
-  // "1" sits 30° clockwise from north; each channel advances one position (30°)
   const rotation = 30 + activeIndex * 30;
 
-  function handleClick() {
+  function handleChannelClick() {
     const nextIndex = (activeIndex + 1) % channels.length;
     router.push(channels[nextIndex].href);
+  }
+
+  function handleChannelContextMenu(e: React.MouseEvent) {
+    e.preventDefault();
+    const prevIndex = (activeIndex - 1 + channels.length) % channels.length;
+    router.push(channels[prevIndex].href);
+  }
+
+  function handleVolumeChange(v: number) {
+    setVolume(v);
+    window.dispatchEvent(new CustomEvent("volume-change", { detail: { volume: v } }));
   }
 
   return (
     <div className="tv-dial-section">
       <div className="tv-dial-wrap">
-        <NumberDial rotation={rotation} onClick={handleClick} channelIndex={activeIndex} />
+        <NumberDial rotation={rotation} onClick={handleChannelClick} onContextMenu={handleChannelContextMenu} channelIndex={activeIndex} />
         <span className="tv-dial-label">CH {String(activeIndex + 1).padStart(2, "0")}</span>
       </div>
 
       <div className="tv-dial-wrap">
-        <TickDial />
+        <TickDial volume={volume} onVolumeChange={handleVolumeChange} />
         <span className="tv-dial-label">VOL</span>
       </div>
     </div>

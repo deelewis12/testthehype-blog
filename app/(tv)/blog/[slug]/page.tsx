@@ -43,13 +43,19 @@ export default async function BlogPost({
       </header>
 
       <article className="max-w-2xl mx-auto px-6 py-12">
-        <time className="text-xs" style={{ color: "var(--fg-dim)" }}>
-          {new Date(post.createdAt).toISOString().slice(0, 10)}
+        <time className="text-xs" style={{ color: "#c8c0b0", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          {new Date(post.publishedAt ?? post.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
         </time>
 
         <h1
-          className="mt-3 text-2xl font-bold leading-tight"
-          style={{ color: "var(--fg-bright)" }}
+          className="mt-3 font-bold leading-tight"
+          style={{
+            color: "var(--fg)",
+            fontSize: "clamp(2rem, 5vw, 3.5rem)",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            lineHeight: 1.05,
+          }}
         >
           {post.title}
         </h1>

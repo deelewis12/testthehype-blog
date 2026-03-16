@@ -56,7 +56,7 @@ export default async function Home() {
             color: "#c8c0b0",
           }}
         >
-          Designed for desktop
+          My Journey With AI
         </p>
 
         {session && (

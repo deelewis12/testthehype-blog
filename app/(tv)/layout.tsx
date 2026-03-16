@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import TVDials from "@/components/TVDials";
 import PowerButton from "@/components/PowerButton";
+import VolumeOverlay from "@/components/VolumeOverlay";
 
 export default async function TVLayout({
   children,
@@ -31,6 +32,7 @@ export default async function TVLayout({
               <div className="tv-screen-content">
                 {children}
               </div>
+              <VolumeOverlay />
             </div>
           </div>
 

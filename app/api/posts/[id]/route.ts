@@ -34,9 +34,12 @@ export async function PUT(
   const body = await request.json();
   const { title, slug, content, excerpt, published } = body;
 
+  const existing = await prisma.post.findUnique({ where: { id }, select: { published: true, publishedAt: true } });
+  const publishedAt = published && !existing?.published ? new Date() : (existing?.publishedAt ?? null);
+
   const post = await prisma.post.update({
     where: { id },
-    data: { title, slug, content, excerpt, published },
+    data: { title, slug, content, excerpt, published, publishedAt },
   });
 
   return NextResponse.json(post);

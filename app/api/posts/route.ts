@@ -38,7 +38,14 @@ export async function POST(request: NextRequest) {
   }
 
   const post = await prisma.post.create({
-    data: { title, slug, content, excerpt, published: published ?? false },
+    data: {
+      title,
+      slug,
+      content,
+      excerpt,
+      published: published ?? false,
+      publishedAt: published ? new Date() : null,
+    },
   });
 
   return NextResponse.json(post, { status: 201 });
