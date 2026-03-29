@@ -78,7 +78,14 @@ export default function EditPostPage() {
 
   async function handleDelete() {
     setDeleting(true);
-    await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
+    if (!res.ok) {
+      setError("Failed to delete story");
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+      return;
+    }
+    router.refresh();
     router.push("/admin");
   }
 
