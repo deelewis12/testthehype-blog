@@ -81,7 +81,8 @@ export default function EditPostPage() {
     setDeleting(true);
     const res = await fetch(`/api/posts/${id}`, { method: "DELETE" });
     if (!res.ok) {
-      setError("Failed to delete story");
+      const data = await res.json().catch(() => ({}));
+      setError(`Failed to delete story (${res.status}${data.error ? ": " + data.error : ""})`);
       setDeleting(false);
       setShowDeleteConfirm(false);
       return;
