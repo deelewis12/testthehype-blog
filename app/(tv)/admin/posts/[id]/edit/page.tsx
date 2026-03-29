@@ -73,6 +73,7 @@ export default function EditPostPage() {
     }
 
     setPublished(publishState);
+    router.refresh();
     router.push("/admin");
   }
 
